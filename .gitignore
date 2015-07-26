@@ -1,0 +1,28 @@
+# files found specifically in this directory that must be ignored
+/aclocal.m4
+/autom4te.cache
+/compile
+/config.guess
+/config.h
+/config.h.in
+/config.h.in~
+/config.log
+/config.status
+/config.sub
+/configure
+/depcomp
+/install-sh
+/libtool
+/ltmain.sh
+/missing
+/stamp-h1
+/cut-*.tar.gz
+
+# Files, regardless of where they are found, that should be ignored
+Makefile.in
+Makefile
+*.lo
+*.la
+*.o
+.deps/
+.libs/

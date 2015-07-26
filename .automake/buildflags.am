@@ -1,0 +1,2 @@
+AM_CFLAGS                       = -Wall -Wextra -Werror -Wstrict-prototypes
+AM_CPPFLAGS                     = -I$(top_srcdir)/include
