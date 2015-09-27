@@ -1,4 +1,4 @@
 AUTOMAKE_OPTIONS                = foreign 1.4
-EXTRA_DIST                      = .autoconf .automake autogen.sh
+EXTRA_DIST                      = .autoconf .automake autogen.sh docs
 
-SUBDIRS                         = include src
+SUBDIRS                         = libltdl include src

@@ -12,11 +12,13 @@
 /configure
 /depcomp
 /install-sh
+/libltdl
 /libtool
 /ltmain.sh
 /missing
 /stamp-h1
-/cut-*.tar.gz
+/test-driver
+/ctest-*.tar.gz
 
 # Files, regardless of where they are found, that should be ignored
 Makefile.in

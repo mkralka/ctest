@@ -35,13 +35,13 @@ fi
 
 if [ $# -eq 0 ]; then
 	# No directories were specified, the defaults depend on the configuration.
-	if egrep -q '^[[:space:]]*AC_CONFIG_SUBDIRS[[:space:]]*\(' "$configure_ac"; then
+	if grep -Eq '^[[:space:]]*AC_CONFIG_SUBDIRS[[:space:]]*\(' "$configure_ac"; then
 		# There are sub-projects, if we are in a subproject directory,
 		# only configure that directory, otherwise configure them all.
 		if [ "$PWD" != "$rootdir" ]; then
 			subdirs="$PWD"
 		else
-			subdirs=". `egrep '^[[:space:]]*AC_CONFIG_SUBDIRS[[:space:]]*\(' "$configure_ac" | sed 's/^[[:space:]]*AC_CONFIG_SUBDIRS[[:space:]]*(\[\{0,1\}\([^]]*\)\]\{0,1\})[[:space:]]*$/\1/'`"
+			subdirs=". `grep -E '^[[:space:]]*AC_CONFIG_SUBDIRS[[:space:]]*\(' "$configure_ac" | sed 's/^[[:space:]]*AC_CONFIG_SUBDIRS[[:space:]]*(\[\{0,1\}\([^]]*\)\]\{0,1\})[[:space:]]*$/\1/'`"
 		fi
 	else
 		# There are no subprojects, just run it in the root directory.
@@ -61,15 +61,24 @@ for dir in $subdirs; do
 			location="subdirectory ($dir)";
 		fi
 
-		if egrep -q '^[[:space:]]*AC_PROG_LIBTOOL\>' "$configure_ac"; then
+		if grep -Eq '^[[:space:]]*(LTDL_INIT|LT_WITH_LTDL|AC_WITH_LTDL)\>' "$configure_ac"; then
+			if grep -Eq '^[[:space:]]*LT_CONFIG_LTDL_DIR\>' "$configure_ac"; then
+				libtool_ltdl="--ltdl=`grep -E '^[[:space:]]*LT_CONFIG_LTDL_DIR[[:space:]]*\(' "$configure_ac" | sed 's/^[[:space:]]*LT_CONFIG_LTDL_DIR[[:space:]]*(\[\{0,1\}\([^]]*\)\]\{0,1\})[[:space:]]*$/\1/'`"
+			else
+				libtool_ltdl="--ltdl"
+			fi
+		else
+			libtool_ltdl=""
+		fi
+		if grep -Eq '^[[:space:]]*(AC_PROG_LIBTOOL|LT_INIT)\>' "$configure_ac"; then
 			echo "Running libtoolize in $location ..."
-			$libtoolize --force --copy > /dev/null || exit;
+			$libtoolize $libtool_ltdl --force --copy > /dev/null || exit;
 		fi
 
 		echo "Running aclocal in $location ..."
 		aclocal -I .autoconf --force > /dev/null || exit;
 
-		config_h=`egrep '^[[:space:]]*AC_CONFIG_HEADERS[[:space:]]*\(' "$configure_ac" | sed 's/^[[:space:]]*AC_CONFIG_HEADERS[[:space:]]*(\[\{0,1\}\([^]]*\)\]\{0,1\})[[:space:]]*$/\1/'`
+		config_h=`grep -E '^[[:space:]]*AC_CONFIG_HEADERS[[:space:]]*\(' "$configure_ac" | sed 's/^[[:space:]]*AC_CONFIG_HEADERS[[:space:]]*(\[\{0,1\}\([^]]*\)\]\{0,1\})[[:space:]]*$/\1/'`
 		if [ -n "$config_h" ]; then
 			echo "Running acheader in $location ..."
 			rm -f "$config_h" || exit;
