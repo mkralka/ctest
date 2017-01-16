@@ -12,3 +12,6 @@ SUBDIRS                        += exec tests
 # The CLI depends on libs
 SUBDIRS                        += cli
 
+# Examples depend on libs
+SUBDIRS                        += examples
+
