@@ -39,12 +39,17 @@
 #define CT_ASSERT_ISTR_GT(act, exp, ...)        CTEST_ASSERT_CMP__(const char *, act, exp, CTEST_OPERATOR_ISTRGT__, CTEST_OPERATOR_ISTRGT_STR__, "\"%s\"", CTEST_FMTR_NOOP__, "" __VA_ARGS__)
 #define CT_ASSERT_ISTR_GE(act, exp, ...)        CTEST_ASSERT_CMP__(const char *, act, exp, CTEST_OPERATOR_ISTRGE__, CTEST_OPERATOR_ISTRGE_STR__, "\"%s\"", CTEST_FMTR_NOOP__, "" __VA_ARGS__)
 
+#define CT_ASSERT_PTR_EQ(act, exp, ...)         CTEST_ASSERT_CMP__(void *, act, exp, CTEST_OPERATOR_EQ__, CTEST_OPERATOR_EQ_STR__, "%p", CTEST_FMTR_NOOP__, "" __VA_ARGS__)
+#define CT_ASSERT_PTR_NE(act, exp, ...)         CTEST_ASSERT_CMP__(void *, act, exp, CTEST_OPERATOR_NE__, CTEST_OPERATOR_NE_STR__, "%p", CTEST_FMTR_NOOP__, "" __VA_ARGS__)
+#define CT_ASSERT_NULL(act, ...)                CTEST_ASSERT_CMP__(void *, act, NULL, CTEST_OPERATOR_EQ__, CTEST_OPERATOR_EQ_STR__, "%p", CTEST_FMTR_NOOP__, "" __VA_ARGS__)
+#define CT_ASSERT_NONNULL(act, ...)             CTEST_ASSERT_CMP__(void *, act, NULL, CTEST_OPERATOR_EQ__, CTEST_OPERATOR_NE_STR__, "%p", CTEST_FMTR_NOOP__, "" __VA_ARGS__)
+
 #define CT_ASSERT_BOOL_EQ(act, exp, ...)        CTEST_ASSERT_CMP__(int, act, exp, CTEST_OPERATOR_BOOLEQ__, CTEST_OPERATOR_BOOLEQ_STR__, "%s", CTEST_FMTR_BOOL__, "" __VA_ARGS__)
 #define CT_ASSERT_BOOL_NE(act, exp, ...)        CTEST_ASSERT_CMP__(int, act, exp, CTEST_OPERATOR_BOOLNE__, CTEST_OPERATOR_BOOLNE_STR__, "%s", CTEST_FMTR_BOOL__, "" __VA_ARGS__)
 #define CT_ASSERT_TRUE(act, ...)                CTEST_ASSERT_CMP__(int, act, true, CTEST_OPERATOR_BOOLEQ__, CTEST_OPERATOR_BOOLEQ_STR__, "%s", CTEST_FMTR_BOOL__, "" __VA_ARGS__)
 #define CT_ASSERT_FALSE(act, ...)               CTEST_ASSERT_CMP__(int, act, false, CTEST_OPERATOR_BOOLEQ__, CTEST_OPERATOR_BOOLNE_STR__, "%s", CTEST_FMTR_BOOL__, "" __VA_ARGS__)
 
-#define CT_ASSERT__(expr, fmt, ...)             CTEST_ASSERT__(expr, "%s failed" fmt __VA_ARGS__)
+#define CT_ASSERT__(expr, fmt, ...)             CTEST_ASSERT__(expr, "%s failed" fmt,  CTEST_STRINGIZE__(expr), ##__VA_ARGS__)
 
 #define CTEST_FAIL__(fmt, ...) \
 	do { \
@@ -60,10 +65,17 @@
 	do { \
 		type const actual__ = actual; \
 		type const expect__ = expect; \
-		CTEST_ASSERT__( \
-			operator_(actual__, expect__), \
-			"%s evaluated to " operand_fmt " but should " operator_str operand_fmt "", \
-			#actual, operand_fmtr(actual__), operand_fmtr(expect__)); \
+		if (strlen(fmt) > 0) { \
+			CTEST_ASSERT__( \
+				operator_(actual__, expect__), \
+				"%s evaluated to " operand_fmt " but should " operator_str operand_fmt ": " fmt, \
+				#actual, operand_fmtr(actual__), operand_fmtr(expect__), ##__VA_ARGS__); \
+		} else { \
+			CTEST_ASSERT__( \
+				operator_(actual__, expect__), \
+				"%s evaluated to " operand_fmt " but should " operator_str operand_fmt "", \
+				#actual, operand_fmtr(actual__), operand_fmtr(expect__)); \
+		} \
 	} while(0)
 
 #define CTEST_FMTR_NOOP__(x)            (x)
